@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { Plus, ArrowRight, CheckCircle2, Clock, ListTodo } from 'lucide-react';
 import { useTasks } from '../context/TaskContext';
 import TaskCard from '../components/TaskCard';
 import TaskModal from '../components/TaskModal';
 import ConfirmModal from '../components/ConfirmModal';
+import { Button } from '../components/ui/button';
+import { Card, CardContent } from '../components/ui/card';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -12,7 +15,7 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [deletingTask, setDeletingTask] = useState(null);
-  const [filterMode, setFilterMode] = useState('all'); // 'all' | 'urgent' | 'today'
+  const [tabFilter, setTabFilter] = useState('all'); // 'all' | 'urgent' | 'today'
 
   const todayStr = new Date().toISOString().split('T')[0];
 
@@ -45,137 +48,120 @@ export default function Home() {
     }
   };
 
-  // Filter tasks for quick view
-  const filteredTasks = tasks.filter((t) => {
-    if (filterMode === 'urgent') {
-      return t.priority === 'high' && t.status !== 'completed';
-    }
-    if (filterMode === 'today') {
-      return t.dueDate === todayStr;
-    }
-    return true;
-  }).slice(0, 5); // Show top 5 on dashboard
+  const displayedTasks = tasks
+    .filter((t) => {
+      if (tabFilter === 'urgent') return t.priority === 'high' && t.status !== 'completed';
+      if (tabFilter === 'today') return t.dueDate === todayStr;
+      return true;
+    })
+    .slice(0, 5);
 
   return (
-    <div className="page-container">
-      {/* Welcome Hero */}
-      <section className="hero-section">
-        <div className="hero-text">
-          <span className="hero-greeting">Halo, Mahasiswa! 👋</span>
-          <h1 className="hero-title">Kelola Tugas & Aktivitas Kuliah</h1>
-          <p className="hero-subtitle">
-            Aplikasi PWA offline-first untuk mencatat, memantau, dan menyelesaikan tugas akademik tepat waktu.
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-200">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Ringkasan</h1>
+          <p className="text-sm text-zinc-500">
+            Pantau dan kelola jadwal tugas kuliah Anda secara offline-first.
           </p>
         </div>
-        <div className="hero-action">
-          <button onClick={handleOpenAddModal} className="btn-primary-large">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+        <div>
+          <Button onClick={handleOpenAddModal} className="gap-2">
+            <Plus className="h-4 w-4" />
             <span>Tambah Tugas</span>
-          </button>
-        </div>
-      </section>
-
-      {/* Stats Cards Grid */}
-      <section className="stats-grid">
-        <div className="stat-card" onClick={() => navigate('/tasks')}>
-          <div className="stat-icon stat-blue">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-            </svg>
-          </div>
-          <div className="stat-info">
-            <span className="stat-number">{stats.total}</span>
-            <span className="stat-label">Total Tugas</span>
-          </div>
-        </div>
-
-        <div className="stat-card" onClick={() => navigate('/tasks')}>
-          <div className="stat-icon stat-amber">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-          </div>
-          <div className="stat-info">
-            <span className="stat-number">{stats.pending}</span>
-            <span className="stat-label">Belum Selesai</span>
-          </div>
-        </div>
-
-        <div className="stat-card" onClick={() => navigate('/tasks')}>
-          <div className="stat-icon stat-green">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-          </div>
-          <div className="stat-info">
-            <span className="stat-number">{stats.completed}</span>
-            <span className="stat-label">Tugas Selesai</span>
-          </div>
-        </div>
-      </section>
-
-      {/* PWA Feature Highlight Banner */}
-      <div className="pwa-info-banner">
-        <div className="pwa-info-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
-            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-            <line x1="8" y1="21" x2="16" y2="21"></line>
-            <line x1="12" y1="17" x2="12" y2="21"></line>
-          </svg>
-        </div>
-        <div className="pwa-info-text">
-          <strong>Fitur Progressive Web App Aktif:</strong> Aplikasi ini didukung Service Worker dan Cache Storage. Data tetap tersimpan dan dapat diakses tanpa koneksi internet (offline).
+          </Button>
         </div>
       </div>
 
-      {/* Quick Tasks List */}
-      <section className="section-block">
-        <div className="section-header-row">
-          <div>
-            <h2 className="section-heading">Tugas Terbaru</h2>
-            <p className="section-subheading">Pantau progres tugas kuliah prioritas Anda</p>
-          </div>
-          <div className="filter-pill-group">
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
+        <Card className="cursor-pointer hover:border-zinc-300 transition-colors" onClick={() => navigate('/tasks')}>
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Total Tugas</p>
+              <p className="text-2xl font-bold tracking-tight text-zinc-900 mt-1">{stats.total}</p>
+            </div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-zinc-100 text-zinc-700">
+              <ListTodo className="h-4 w-4" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:border-zinc-300 transition-colors" onClick={() => navigate('/tasks')}>
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Belum Selesai</p>
+              <div className="flex items-baseline gap-2 mt-1">
+                <p className="text-2xl font-bold tracking-tight text-zinc-900">{stats.pending}</p>
+                {stats.highPriority > 0 && (
+                  <span className="text-xs font-medium text-red-600">
+                    ({stats.highPriority} mendesak)
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-amber-50 text-amber-700">
+              <Clock className="h-4 w-4" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:border-zinc-300 transition-colors" onClick={() => navigate('/tasks')}>
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Selesai</p>
+              <p className="text-2xl font-bold tracking-tight text-zinc-900 mt-1">{stats.completed}</p>
+            </div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-emerald-50 text-emerald-700">
+              <CheckCircle2 className="h-4 w-4" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Task List Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-semibold tracking-tight text-zinc-900">Tugas Terbaru</h2>
+          <div className="inline-flex h-8 items-center rounded-lg bg-zinc-100 p-0.5 text-zinc-500 text-xs">
             <button
-              className={`pill-btn ${filterMode === 'all' ? 'active' : ''}`}
-              onClick={() => setFilterMode('all')}
+              onClick={() => setTabFilter('all')}
+              className={`rounded-md px-2.5 py-1 font-medium transition-colors ${
+                tabFilter === 'all' ? 'bg-white text-zinc-900 shadow-xs' : 'hover:text-zinc-900'
+              }`}
             >
               Semua
             </button>
             <button
-              className={`pill-btn ${filterMode === 'urgent' ? 'active' : ''}`}
-              onClick={() => setFilterMode('urgent')}
+              onClick={() => setTabFilter('urgent')}
+              className={`rounded-md px-2.5 py-1 font-medium transition-colors ${
+                tabFilter === 'urgent' ? 'bg-white text-zinc-900 shadow-xs' : 'hover:text-zinc-900'
+              }`}
             >
-              Mendesak ({stats.highPriority})
+              Mendesak
             </button>
             <button
-              className={`pill-btn ${filterMode === 'today' ? 'active' : ''}`}
-              onClick={() => setFilterMode('today')}
+              onClick={() => setTabFilter('today')}
+              className={`rounded-md px-2.5 py-1 font-medium transition-colors ${
+                tabFilter === 'today' ? 'bg-white text-zinc-900 shadow-xs' : 'hover:text-zinc-900'
+              }`}
             >
               Hari Ini
             </button>
           </div>
         </div>
 
-        {filteredTasks.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">🎉</div>
-            <p className="empty-text">Tidak ada tugas pada kategori ini.</p>
-            <button onClick={handleOpenAddModal} className="btn-secondary">
-              Buat Tugas Sekarang
-            </button>
+        {displayedTasks.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-zinc-200 p-8 text-center bg-white">
+            <p className="text-sm text-zinc-500">Tidak ada tugas pada kategori ini.</p>
+            <Button variant="outline" size="sm" onClick={handleOpenAddModal} className="mt-3">
+              Buat Tugas Baru
+            </Button>
           </div>
         ) : (
-          <div className="task-list">
-            {filteredTasks.map((task) => (
+          <div className="space-y-2.5">
+            {displayedTasks.map((task) => (
               <TaskCard
                 key={task.id}
                 task={task}
@@ -187,14 +173,17 @@ export default function Home() {
           </div>
         )}
 
-        <div className="view-more-container">
-          <Link to="/tasks" className="btn-outline-wide">
-            Lihat Semua Tugas & Kelola CRUD &rarr;
+        <div className="pt-2">
+          <Link to="/tasks" className="w-full inline-block">
+            <Button variant="outline" className="w-full gap-2">
+              <span>Buka Daftar Tugas Lengkap</span>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
           </Link>
         </div>
-      </section>
+      </div>
 
-      {/* Task Modal for Add/Edit */}
+      {/* Task Modal */}
       <TaskModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -202,11 +191,11 @@ export default function Home() {
         editingTask={editingTask}
       />
 
-      {/* Confirm Delete Modal */}
+      {/* Confirm Modal */}
       <ConfirmModal
         isOpen={!!deletingTask}
-        title="Hapus Tugas Kuliah"
-        message={`Apakah Anda yakin ingin menghapus "${deletingTask?.title}"?`}
+        title="Hapus Tugas"
+        message={`Hapus tugas "${deletingTask?.title}"?`}
         onConfirm={handleConfirmDelete}
         onCancel={() => setDeletingTask(null)}
       />

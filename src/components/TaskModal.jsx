@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
 import { SUBJECTS } from '../data/initialTasks';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
 
 export default function TaskModal({ isOpen, onClose, onSave, editingTask }) {
   const [title, setTitle] = useState('');
@@ -22,7 +25,6 @@ export default function TaskModal({ isOpen, onClose, onSave, editingTask }) {
       setDescription(editingTask.description || '');
       setError('');
     } else {
-      // Default for new task
       setTitle('');
       setSubject('Pemrograman Perangkat Bergerak');
       setDueDate(new Date().toISOString().split('T')[0]);
@@ -38,7 +40,7 @@ export default function TaskModal({ isOpen, onClose, onSave, editingTask }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!title.trim()) {
-      setError('Judul tugas wajib diisi!');
+      setError('Judul tugas wajib diisi.');
       return;
     }
 
@@ -54,27 +56,37 @@ export default function TaskModal({ isOpen, onClose, onSave, editingTask }) {
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2 className="modal-title">
-            {editingTask ? 'Edit Tugas Kuliah' : 'Tambah Tugas Baru'}
-          </h2>
-          <button className="btn-close" onClick={onClose} aria-label="Tutup modal">
-            &times;
-          </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-xs">
+      <div
+        className="w-full max-w-lg rounded-xl border border-zinc-200 bg-white p-6 shadow-lg animate-in fade-in-0 zoom-in-95"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
+          <div>
+            <h2 className="text-base font-semibold tracking-tight text-zinc-900">
+              {editingTask ? 'Edit Tugas' : 'Tambah Tugas Baru'}
+            </h2>
+            <p className="text-xs text-zinc-500">
+              {editingTask ? 'Perbarui informasi tugas akademik Anda' : 'Catat tugas baru ke dalam daftar kuliah'}
+            </p>
+          </div>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-400 hover:text-zinc-700" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
         </div>
 
-        <form onSubmit={handleSubmit} className="modal-form">
-          {error && <div className="form-alert">{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+          {error && (
+            <div className="rounded-md border border-red-200 bg-red-50 p-2.5 text-xs text-red-700">
+              {error}
+            </div>
+          )}
 
-          <div className="form-group">
-            <label className="form-label">
-              Judul Tugas <span className="required">*</span>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-zinc-700">
+              Judul Tugas <span className="text-red-500">*</span>
             </label>
-            <input
-              type="text"
-              className="form-input"
+            <Input
               placeholder="Contoh: Laporan Modul 5 PWA"
               value={title}
               onChange={(e) => {
@@ -85,11 +97,11 @@ export default function TaskModal({ isOpen, onClose, onSave, editingTask }) {
             />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Mata Kuliah</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-zinc-700">Mata Kuliah</label>
               <select
-                className="form-select"
+                className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
               >
@@ -101,35 +113,34 @@ export default function TaskModal({ isOpen, onClose, onSave, editingTask }) {
               </select>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Tenggat Waktu (Due Date)</label>
-              <input
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-zinc-700">Tenggat Waktu</label>
+              <Input
                 type="date"
-                className="form-input"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
               />
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Prioritas</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-zinc-700">Prioritas</label>
               <select
-                className="form-select"
+                className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950"
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
               >
-                <option value="high">Tinggi (Penting & Mendesak)</option>
-                <option value="medium">Sedang (Normal)</option>
-                <option value="low">Rendah (Santai)</option>
+                <option value="high">Tinggi</option>
+                <option value="medium">Sedang</option>
+                <option value="low">Rendah</option>
               </select>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Status Progres</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-zinc-700">Status</label>
               <select
-                className="form-select"
+                className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
               >
@@ -140,24 +151,24 @@ export default function TaskModal({ isOpen, onClose, onSave, editingTask }) {
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Deskripsi / Catatan Tambahan</label>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-zinc-700">Catatan / Deskripsi</label>
             <textarea
-              className="form-textarea"
-              rows="3"
-              placeholder="Tuliskan petunjuk tugas, tautan referensi, atau instruksi..."
+              className="flex w-full rounded-md border border-zinc-200 bg-white p-3 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 placeholder:text-zinc-400"
+              rows={3}
+              placeholder="Instruksi, tautan modul, atau catatan..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-            ></textarea>
+            />
           </div>
 
-          <div className="modal-actions">
-            <button type="button" className="btn-secondary" onClick={onClose}>
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-zinc-100">
+            <Button type="button" variant="outline" onClick={onClose}>
               Batal
-            </button>
-            <button type="submit" className="btn-primary">
-              {editingTask ? 'Simpan Perubahan' : 'Tambah Tugas'}
-            </button>
+            </Button>
+            <Button type="submit">
+              {editingTask ? 'Simpan' : 'Tambah'}
+            </Button>
           </div>
         </form>
       </div>

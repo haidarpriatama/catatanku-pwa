@@ -1,18 +1,21 @@
 import React, { useState, useMemo } from 'react';
+import { Plus, Search, RotateCcw, X, SlidersHorizontal } from 'lucide-react';
 import { useTasks } from '../context/TaskContext';
 import { SUBJECTS } from '../data/initialTasks';
 import TaskCard from '../components/TaskCard';
 import TaskModal from '../components/TaskModal';
 import ConfirmModal from '../components/ConfirmModal';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 
 export default function Tasks() {
   const { tasks, createTask, updateTask, deleteTask, toggleTaskStatus, resetToDefault } = useTasks();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('Semua Mata Kuliah');
-  const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'pending' | 'completed'
-  const [priorityFilter, setPriorityFilter] = useState('all'); // 'all' | 'high' | 'medium' | 'low'
-  const [sortBy, setSortBy] = useState('dueDate'); // 'dueDate' | 'priority' | 'newest'
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('dueDate');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
@@ -47,27 +50,22 @@ export default function Tasks() {
     }
   };
 
-  // Filter & Search logic
   const filteredTasks = useMemo(() => {
     return tasks
       .filter((task) => {
-        // Search query
         const matchSearch =
           task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           task.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
           (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()));
 
-        // Subject filter
         const matchSubject =
           selectedSubject === 'Semua Mata Kuliah' || task.subject === selectedSubject;
 
-        // Status filter
         const matchStatus =
           statusFilter === 'all' ||
           (statusFilter === 'completed' && task.status === 'completed') ||
           (statusFilter === 'pending' && task.status !== 'completed');
 
-        // Priority filter
         const matchPriority =
           priorityFilter === 'all' || task.priority === priorityFilter;
 
@@ -88,57 +86,59 @@ export default function Tasks() {
       });
   }, [tasks, searchQuery, selectedSubject, statusFilter, priorityFilter, sortBy]);
 
+  const hasActiveFilters =
+    searchQuery ||
+    selectedSubject !== 'Semua Mata Kuliah' ||
+    statusFilter !== 'all' ||
+    priorityFilter !== 'all';
+
   return (
-    <div className="page-container">
-      {/* Page Title & Add Button */}
-      <div className="page-header-row">
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-200">
         <div>
-          <h1 className="page-title">Kelola Tugas Kuliah</h1>
-          <p className="page-subtitle">
-            Halaman CRUD Fungsional untuk menambah, melihat, mengedit, dan menghapus tugas.
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Kelola Tugas</h1>
+          <p className="text-sm text-zinc-500">
+            Daftar tugas kuliah lengkap dengan fungsi CRUD fungsional & penyimpanan lokal.
           </p>
         </div>
-        <div className="header-button-group">
-          <button onClick={resetToDefault} className="btn-secondary btn-sm" title="Kembalikan data default praktikum">
-            Reset Data Demo
-          </button>
-          <button onClick={handleOpenAdd} className="btn-primary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={resetToDefault} className="gap-1.5 h-9" title="Kembalikan data default praktikum">
+            <RotateCcw className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Reset Demo</span>
+          </Button>
+          <Button onClick={handleOpenAdd} className="gap-2 h-9">
+            <Plus className="h-4 w-4" />
             <span>Tambah Tugas</span>
-          </button>
+          </Button>
         </div>
       </div>
 
-      {/* Search & Filter Toolbar */}
-      <div className="filter-card">
-        <div className="search-input-wrapper">
-          <svg className="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Cari tugas berdasarkan judul, mata kuliah, atau kata kunci..."
+      {/* Filter Toolbar */}
+      <div className="rounded-xl border border-zinc-200 bg-white p-4 my-6 shadow-xs space-y-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
+          <Input
+            placeholder="Cari tugas berdasarkan judul atau kata kunci..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 pr-9"
           />
           {searchQuery && (
-            <button className="btn-clear-search" onClick={() => setSearchQuery('')}>
-              &times;
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-2.5 text-zinc-400 hover:text-zinc-600"
+            >
+              <X className="h-4 w-4" />
             </button>
           )}
         </div>
 
-        <div className="filter-controls-grid">
-          {/* Filter Mata Kuliah */}
-          <div className="filter-item">
-            <label className="filter-label">Mata Kuliah</label>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+          <div>
+            <label className="block text-[11px] font-medium text-zinc-500 mb-1">Mata Kuliah</label>
             <select
-              className="form-select"
+              className="h-9 w-full rounded-md border border-zinc-200 bg-white px-2.5 text-xs shadow-xs focus:outline-none focus:ring-1 focus:ring-zinc-950"
               value={selectedSubject}
               onChange={(e) => setSelectedSubject(e.target.value)}
             >
@@ -148,11 +148,10 @@ export default function Tasks() {
             </select>
           </div>
 
-          {/* Filter Status */}
-          <div className="filter-item">
-            <label className="filter-label">Status</label>
+          <div>
+            <label className="block text-[11px] font-medium text-zinc-500 mb-1">Status</label>
             <select
-              className="form-select"
+              className="h-9 w-full rounded-md border border-zinc-200 bg-white px-2.5 text-xs shadow-xs focus:outline-none focus:ring-1 focus:ring-zinc-950"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -162,11 +161,10 @@ export default function Tasks() {
             </select>
           </div>
 
-          {/* Filter Prioritas */}
-          <div className="filter-item">
-            <label className="filter-label">Prioritas</label>
+          <div>
+            <label className="block text-[11px] font-medium text-zinc-500 mb-1">Prioritas</label>
             <select
-              className="form-select"
+              className="h-9 w-full rounded-md border border-zinc-200 bg-white px-2.5 text-xs shadow-xs focus:outline-none focus:ring-1 focus:ring-zinc-950"
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
             >
@@ -177,65 +175,68 @@ export default function Tasks() {
             </select>
           </div>
 
-          {/* Sort By */}
-          <div className="filter-item">
-            <label className="filter-label">Urutkan</label>
+          <div>
+            <label className="block text-[11px] font-medium text-zinc-500 mb-1">Urutan</label>
             <select
-              className="form-select"
+              className="h-9 w-full rounded-md border border-zinc-200 bg-white px-2.5 text-xs shadow-xs focus:outline-none focus:ring-1 focus:ring-zinc-950"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
-              <option value="dueDate">Tenggat Waktu Terdekat</option>
+              <option value="dueDate">Tenggat Terdekat</option>
               <option value="priority">Prioritas Tertinggi</option>
               <option value="newest">Baru Ditambahkan</option>
             </select>
           </div>
         </div>
-      </div>
 
-      {/* Task Count Indicator */}
-      <div className="result-counter-row">
-        <span>Menampilkan <strong>{filteredTasks.length}</strong> dari <strong>{tasks.length}</strong> tugas</span>
-        {(searchQuery || selectedSubject !== 'Semua Mata Kuliah' || statusFilter !== 'all' || priorityFilter !== 'all') && (
-          <button
-            className="btn-link"
-            onClick={() => {
-              setSearchQuery('');
-              setSelectedSubject('Semua Mata Kuliah');
-              setStatusFilter('all');
-              setPriorityFilter('all');
-            }}
-          >
-            Reset Filter
-          </button>
+        {hasActiveFilters && (
+          <div className="flex items-center justify-between pt-2 border-t border-zinc-100 text-xs text-zinc-500">
+            <span>Filter aktif diterapkan</span>
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedSubject('Semua Mata Kuliah');
+                setStatusFilter('all');
+                setPriorityFilter('all');
+              }}
+              className="text-zinc-900 font-medium hover:underline"
+            >
+              Hapus Filter
+            </button>
+          </div>
         )}
       </div>
 
-      {/* Tasks Grid / List */}
-      {filteredTasks.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-icon">🔍</div>
-          <h3 className="empty-title">Tidak ada tugas yang cocok</h3>
-          <p className="empty-text">Coba ubah kata kunci pencarian atau bersihkan filter yang aktif.</p>
-          <button onClick={handleOpenAdd} className="btn-primary">
-            Tambah Tugas Baru
-          </button>
+      {/* Task List */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between text-xs text-zinc-500 px-1">
+          <span>Menampilkan {filteredTasks.length} dari {tasks.length} tugas</span>
         </div>
-      ) : (
-        <div className="task-list">
-          {filteredTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onToggleStatus={toggleTaskStatus}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
-      )}
 
-      {/* Modal CRUD */}
+        {filteredTasks.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-zinc-200 p-12 text-center bg-white">
+            <p className="text-sm font-medium text-zinc-900 mb-1">Tidak ada tugas ditemukan</p>
+            <p className="text-xs text-zinc-500 mb-4">Coba sesuaikan kata kunci pencarian atau bersihkan filter.</p>
+            <Button size="sm" onClick={handleOpenAdd}>
+              Tambah Tugas Baru
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-2.5">
+            {filteredTasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                onToggleStatus={toggleTaskStatus}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Modals */}
       <TaskModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -243,11 +244,10 @@ export default function Tasks() {
         editingTask={editingTask}
       />
 
-      {/* Confirm Delete */}
       <ConfirmModal
         isOpen={!!deletingTask}
         title="Hapus Tugas"
-        message={`Apakah Anda yakin ingin menghapus "${deletingTask?.title}"? Data akan terhapus dari penyimpanan lokal.`}
+        message={`Hapus tugas "${deletingTask?.title}" dari penyimpanan?`}
         onConfirm={handleConfirmDelete}
         onCancel={() => setDeletingTask(null)}
       />

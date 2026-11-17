@@ -11,10 +11,10 @@ import { TaskProvider } from './context/TaskContext';
 export default function App() {
   return (
     <TaskProvider>
-      <div className="app-shell">
+      <div className="min-h-screen bg-zinc-50/60 text-zinc-900 flex flex-col antialiased selection:bg-zinc-900 selection:text-white">
         <Navbar />
 
-        <main className="main-content">
+        <main className="flex-1 pb-20 md:pb-10">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/tasks" element={<Tasks />} />
@@ -24,13 +24,13 @@ export default function App() {
           </Routes>
         </main>
 
-        <footer className="footer-container">
-          <div className="footer-content">
-            <p className="footer-text">
-              <strong>CatatKuliah PWA</strong> &bull; Praktikum Pemrograman Perangkat Bergerak 2026
+        <footer className="border-t border-zinc-200 bg-white py-6 px-4 text-center text-xs text-zinc-400">
+          <div className="mx-auto max-w-5xl flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p>
+              <span className="font-medium text-zinc-700">CatatKuliah PWA</span> &bull; Praktikum Pemrograman Perangkat Bergerak
             </p>
-            <p className="footer-subtext">
-              Kelompok 38 &bull; Haidar Rafi Apta Priatama (21120124140107) &bull; Teknik Komputer UNDIP
+            <p className="text-zinc-400">
+              Kelompok 38 &bull; Haidar Rafi Apta Priatama (21120124140107)
             </p>
           </div>
         </footer>

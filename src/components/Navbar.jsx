@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
+import { CheckSquare, Download, Wifi, WifiOff } from 'lucide-react';
+import { Button } from './ui/button';
 
 export default function Navbar() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -13,7 +15,6 @@ export default function Navbar() {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // Listen for PWA beforeinstallprompt event
     const handleBeforeInstall = (e) => {
       e.preventDefault();
       setInstallPrompt(e);
@@ -21,7 +22,6 @@ export default function Navbar() {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
 
-    // Check if already in standalone mode
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
       setIsInstalled(true);
     }
@@ -43,54 +43,66 @@ export default function Navbar() {
     }
   };
 
+  const navItemClass = ({ isActive }) =>
+    `text-sm font-medium transition-colors hover:text-zinc-900 ${
+      isActive ? 'text-zinc-900 font-semibold' : 'text-zinc-500'
+    }`;
+
   return (
-    <header className="navbar-container">
-      <div className="navbar-content">
-        <NavLink to="/" className="navbar-brand">
-          <div className="brand-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-              <polyline points="10 9 9 9 8 9"></polyline>
-            </svg>
-          </div>
-          <div className="brand-text">
-            <span className="brand-title">CatatKuliah</span>
-            <span className="brand-badge">PWA</span>
-          </div>
-        </NavLink>
+    <header className="sticky top-0 z-40 w-full border-b border-zinc-200 bg-white/95 backdrop-blur-xs">
+      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
+        <div className="flex items-center gap-6">
+          <NavLink to="/" className="flex items-center gap-2 text-zinc-900">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-zinc-900 text-white">
+              <CheckSquare className="h-4 w-4" />
+            </div>
+            <span className="font-semibold tracking-tight text-sm sm:text-base">CatatKuliah</span>
+            <span className="rounded border border-zinc-200 bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600">
+              PWA
+            </span>
+          </NavLink>
 
-        <nav className="desktop-nav">
-          <NavLink to="/" end className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-            Beranda
-          </NavLink>
-          <NavLink to="/tasks" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-            Kelola Tugas
-          </NavLink>
-          <NavLink to="/profile" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-            Profil
-          </NavLink>
-        </nav>
+          <nav className="hidden md:flex items-center gap-5 text-sm">
+            <NavLink to="/" end className={navItemClass}>
+              Ringkasan
+            </NavLink>
+            <NavLink to="/tasks" className={navItemClass}>
+              Daftar Tugas
+            </NavLink>
+            <NavLink to="/profile" className={navItemClass}>
+              Profil
+            </NavLink>
+          </nav>
+        </div>
 
-        <div className="navbar-actions">
-          {/* Online/Offline Badge */}
-          <div className={`status-pill ${isOnline ? 'online' : 'offline'}`} title={isOnline ? 'Aplikasi Terhubung ke Internet' : 'Mode Offline Aktif'}>
-            <span className="status-dot"></span>
-            <span className="status-text">{isOnline ? 'Online' : 'Offline'}</span>
+        <div className="flex items-center gap-2.5">
+          {/* Online/Offline Status */}
+          <div
+            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${
+              isOnline
+                ? 'border-emerald-200 bg-emerald-50/70 text-emerald-700'
+                : 'border-zinc-200 bg-zinc-100 text-zinc-600'
+            }`}
+          >
+            {isOnline ? (
+              <>
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <span className="hidden sm:inline">Online</span>
+              </>
+            ) : (
+              <>
+                <WifiOff className="h-3 w-3 text-zinc-500" />
+                <span>Offline</span>
+              </>
+            )}
           </div>
 
           {/* PWA Install Button */}
           {installPrompt && !isInstalled && (
-            <button onClick={handleInstallClick} className="btn-install" title="Pasang aplikasi ke perangkat Anda">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-              </svg>
-              <span>Install App</span>
-            </button>
+            <Button variant="outline" size="sm" onClick={handleInstallClick} className="gap-1.5 h-8">
+              <Download className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Install</span>
+            </Button>
           )}
         </div>
       </div>
