@@ -6,10 +6,10 @@
 ---
 
 ## 👥 Identitas Mahasiswa & Kelompok
-- **Nama**: Haidar Rafi Apta Priatama
-- **NIM**: 21120124140107
-- **Kelompok**: 38
-- **Shift**: 06
+- **Nama**: Kevin Nibras Kusuma
+- **NIM**: 21120124140131
+- **Kelompok**: 20
+- **Shift**: 3
 - **Program Studi**: Teknik Komputer
 - **Universitas**: Universitas Diponegoro
 - **Mata Kuliah**: Praktikum Pemrograman Perangkat Bergerak (Semester 5)

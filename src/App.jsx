@@ -30,7 +30,7 @@ export default function App() {
               <span className="font-medium text-zinc-700">CatatKuliah PWA</span> &bull; Praktikum Pemrograman Perangkat Bergerak
             </p>
             <p className="text-zinc-400">
-              Kelompok 38 &bull; Haidar Rafi Apta Priatama (21120124140107)
+              Kelompok 20 &bull; Kevin Nibras Kusuma (21120124140131)
             </p>
           </div>
         </footer>

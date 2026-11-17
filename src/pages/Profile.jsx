@@ -10,7 +10,7 @@ export default function Profile() {
   const { stats, resetToDefault } = useTasks();
 
   const [profileData, setProfileData] = useState(() => {
-    const saved = localStorage.getItem('catatkuliah_profile');
+    const saved = localStorage.getItem('catatkuliah_profile_v2');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -19,10 +19,10 @@ export default function Profile() {
       }
     }
     return {
-      nama: 'Haidar Rafi Apta Priatama',
-      nim: '21120124140107',
-      kelompok: 'Kelompok 38',
-      shift: 'Shift 06',
+      nama: 'Kevin Nibras Kusuma',
+      nim: '21120124140131',
+      kelompok: 'Kelompok 20',
+      shift: 'Shift 3',
       prodi: 'Teknik Komputer',
       universitas: 'Universitas Diponegoro',
       mataKuliah: 'Praktikum Pemrograman Perangkat Bergerak',
@@ -46,7 +46,7 @@ export default function Profile() {
   const handleSaveProfile = (e) => {
     e.preventDefault();
     setProfileData(formData);
-    localStorage.setItem('catatkuliah_profile', JSON.stringify(formData));
+    localStorage.setItem('catatkuliah_profile_v2', JSON.stringify(formData));
     setIsEditing(false);
     showNotice('Data profil berhasil disimpan.');
   };
